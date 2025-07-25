@@ -49,6 +49,11 @@ const HomePage = () => {
   if (error && videos.length === 0) {
     return (
       <div className="home-page">
+        {/* 版权声明 */}
+        <div className="copyright-notice">
+          视频如有侵权，请联系微信群删除
+        </div>
+        
         <header className="app-header">
           <div className="header-content">
             <h1 className="app-title">Live1973</h1>
@@ -72,6 +77,11 @@ const HomePage = () => {
 
   return (
     <div className="home-page" ref={scrollRef}>
+      {/* 版权声明 */}
+      <div className="copyright-notice">
+        视频如有侵权，请联系微信群删除
+      </div>
+      
       {/* 顶部导航栏 */}
       <header className="app-header">
         <div className="header-content">

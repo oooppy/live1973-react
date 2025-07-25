@@ -1,5 +1,8 @@
 // API 配置
-const API_BASE_URL = 'http://192.168.1.3:3000/api';
+// 生产环境使用相对路径，开发环境使用完整URL
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api'  // 生产环境：相对路径
+  : 'http://10.100.126.62:3000/api';  // 开发环境：完整URL
 
 // 通用请求函数
 const request = async (endpoint, options = {}) => {
