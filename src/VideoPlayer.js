@@ -17,8 +17,8 @@ const VideoPlayer = ({ src }) => {
           responsive: true,
           fluid: true,
           preload: 'metadata', // 预加载元数据
-          autoplay: false,
-          muted: false,
+          autoplay: true, // 🆕 启用自动播放
+          muted: true, // 🆕 静音播放（浏览器策略要求）
           // 🆕 HLS配置优化
           html5: {
             vhs: {
@@ -49,6 +49,12 @@ const VideoPlayer = ({ src }) => {
 
         playerRef.current.on('canplay', () => {
           console.log('✅ 视频可以开始播放');
+          // 🆕 自动开始播放
+          if (playerRef.current.paused()) {
+            playerRef.current.play().catch(error => {
+              console.log('⚠️ 自动播放失败，可能需要用户交互:', error);
+            });
+          }
         });
 
         playerRef.current.on('waiting', () => {
@@ -57,6 +63,18 @@ const VideoPlayer = ({ src }) => {
 
         playerRef.current.on('error', (error) => {
           console.error('❌ 播放错误:', error);
+        });
+
+        // 🆕 播放开始后取消静音
+        playerRef.current.on('play', () => {
+          console.log('▶️ 视频开始播放');
+          // 延迟取消静音，确保播放已经开始
+          setTimeout(() => {
+            if (playerRef.current && !playerRef.current.paused()) {
+              playerRef.current.muted(false);
+              console.log('🔊 已取消静音');
+            }
+          }, 100);
         });
 
         // 🆕 网络质量监控和自适应缓冲

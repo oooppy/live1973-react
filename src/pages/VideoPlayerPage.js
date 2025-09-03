@@ -40,11 +40,18 @@ const VideoPlayerPage = () => {
     let timeout;
     if (videoRef.current) {
       timeout = setTimeout(() => {
-        playerRef.current = videojs(videoRef.current, {
+        // 🆕 优化播放器配置，支持自动播放
+        const playerOptions = {
           controls: true,
           responsive: true,
           fluid: true,
-          sources: [{ src: video.video_url, type: 'video/mp4' }],
+          preload: 'metadata', // 预加载元数据
+          autoplay: true, // 🆕 启用自动播放
+          muted: true, // 🆕 静音播放（浏览器策略要求）
+          sources: [{ 
+            src: video.video_url, 
+            type: video.video_url?.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4' 
+          }],
           controlBar: {
             children: [
               'playToggle',
@@ -57,7 +64,49 @@ const VideoPlayerPage = () => {
               'fullscreenToggle'
             ]
           }
+        };
+
+        playerRef.current = videojs(videoRef.current, playerOptions);
+
+        // 🆕 添加事件监听
+        playerRef.current.on('loadstart', () => {
+          console.log('🎬 开始加载视频');
         });
+
+        playerRef.current.on('loadedmetadata', () => {
+          console.log('📋 视频元数据加载完成');
+        });
+
+        playerRef.current.on('canplay', () => {
+          console.log('✅ 视频可以开始播放');
+          // 🆕 自动开始播放
+          if (playerRef.current.paused()) {
+            playerRef.current.play().catch(error => {
+              console.log('⚠️ 自动播放失败，可能需要用户交互:', error);
+            });
+          }
+        });
+
+        playerRef.current.on('waiting', () => {
+          console.log('⏳ 视频缓冲中...');
+        });
+
+        playerRef.current.on('error', (error) => {
+          console.error('❌ 播放错误:', error);
+        });
+
+        // 🆕 播放开始后取消静音
+        playerRef.current.on('play', () => {
+          console.log('▶️ 视频开始播放');
+          // 延迟取消静音，确保播放已经开始
+          setTimeout(() => {
+            if (playerRef.current && !playerRef.current.paused()) {
+              playerRef.current.muted(false);
+              console.log('🔊 已取消静音');
+            }
+          }, 100);
+        });
+
       }, 0);
     }
     return () => {
