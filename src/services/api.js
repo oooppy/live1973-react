@@ -2,7 +2,7 @@
 // 生产环境使用相对路径，开发环境使用完整URL
 const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? '/api'  // 生产环境：相对路径
-  : 'http://10.100.126.62:3000/api';  // 开发环境：完整URL
+  : 'http://10.102.31.33:3000/api';  // 开发环境：完整URL
 
 // 通用请求函数
 const request = async (endpoint, options = {}) => {
@@ -38,11 +38,44 @@ export const api = {
     return request(`/videos/${id}`);
   },
 
+  // 获取视频播放信息（包含多种格式）
+  getVideoPlayInfo: async (id) => {
+    return request(`/videos/${id}/play`);
+  },
+
   // 更新播放量
   updateViews: async (id) => {
     return request(`/videos/${id}/views`, {
       method: 'PATCH',
     });
+  },
+
+  // 🆕 获取VOD测试信息
+  testVodConnection: async () => {
+    return request('/vod/test');
+  },
+
+  // 🆕 获取VOD视频信息
+  getVodVideoInfo: async (videoId) => {
+    return request(`/vod/info/${videoId}`);
+  },
+
+  // 🆕 性能监控 - 记录播放事件
+  logPlayEvent: async (videoId, eventType, data = {}) => {
+    return request('/videos/play-events', {
+      method: 'POST',
+      body: JSON.stringify({
+        videoId,
+        eventType, // 'start', 'pause', 'seek', 'error', 'complete'
+        timestamp: new Date().toISOString(),
+        ...data
+      })
+    });
+  },
+
+  // 🆕 获取播放性能统计
+  getPlayStats: async (videoId) => {
+    return request(`/videos/${videoId}/stats`);
   },
 
   // 健康检查
